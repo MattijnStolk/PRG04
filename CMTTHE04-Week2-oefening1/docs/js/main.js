@@ -22,6 +22,22 @@ var Bubble = (function () {
     };
     return Bubble;
 }());
+var Crocodile = (function () {
+    function Crocodile() {
+        this.createCrocodile();
+    }
+    Crocodile.prototype.createCrocodile = function () {
+        var crocodile = document.createElement("crocodile");
+        gameElement.appendChild(crocodile);
+        var x = randomPosition() + "vw";
+        var y = randomPosition() + "vh";
+        crocodile.style.transform = "translate(" + x + ", " + y + ")";
+        crocodile.addEventListener("click", function () {
+            crocodile.remove();
+        });
+    };
+    return Crocodile;
+}());
 var Fish = (function () {
     function Fish() {
         this.createFish();
@@ -52,9 +68,12 @@ function randomPosition() {
 }
 var Game = (function () {
     function Game() {
-        new Fish();
-        new Bubble();
-        console.log("Game was created!");
+        for (var i = 0; i < 10; i++) {
+            new Crocodile();
+            new Fish();
+            new Bubble();
+            console.log("Game was created!");
+        }
     }
     return Game;
 }());

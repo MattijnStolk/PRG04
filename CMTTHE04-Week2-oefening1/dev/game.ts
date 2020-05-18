@@ -10,10 +10,13 @@ function randomPosition(){
 class Game {
         
     constructor() {
+        for (let i = 0; i < 10; i++) {
+        
+        new Crocodile()
         new Fish()
         new Bubble()
         console.log("Game was created!")
-    }
+    }}
 } 
 
 window.addEventListener("load", () => new Game())
