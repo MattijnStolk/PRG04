@@ -1,26 +1,96 @@
 "use strict";
 var Ball = (function () {
     function Ball() {
-        this.div = document.createElement("ball");
+        this._x = 0;
+        this._y = 0;
+        this.xspeed = 0;
+        this.yspeed = 0;
+        this._div = document.createElement("ball");
         var game = document.getElementsByTagName("game")[0];
-        game.appendChild(this.div);
-        this.x = Math.random() * window.innerWidth;
-        this.y = Math.random() * window.innerHeight;
+        game.appendChild(this._div);
+        this._x = Math.random() * window.innerWidth;
+        this._y = Math.random() * window.innerHeight;
+        this.xspeed = 2;
+        this.yspeed = -3;
     }
+    Object.defineProperty(Ball.prototype, "x", {
+        get: function () { return this._x; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Ball.prototype, "y", {
+        get: function () { return this._y; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Ball.prototype, "div", {
+        get: function () { return this._div; },
+        enumerable: true,
+        configurable: true
+    });
+    Ball.prototype.getRectangle = function () {
+        return this.div.getBoundingClientRect();
+    };
     Ball.prototype.update = function () {
-        this.div.style.transform = "translate(" + this.x + "px, " + this.y + "px)";
+        this._x += this.xspeed;
+        this._y += this.yspeed;
+        this._div.style.transform = "translate(" + this._x + "px, " + this._y + "px)";
+    };
+    Ball.prototype.bounceX = function () {
+        this.xspeed *= -1;
+        this.xspeed *= 1.25;
+    };
+    Ball.prototype.bounceY = function () {
+        this.yspeed *= -1;
     };
     return Ball;
 }());
 var Game = (function () {
     function Game() {
-        this.ball = new Ball();
+        this.balls = [];
+        this.score = 0;
+        for (var i = 0; i < 20; i++) {
+            this.balls.push(new Ball());
+        }
+        this.paddle = new Paddle();
         this.gameLoop();
     }
     Game.prototype.gameLoop = function () {
         var _this = this;
-        this.ball.update();
+        for (var _i = 0, _a = this.balls; _i < _a.length; _i++) {
+            var ball = _a[_i];
+            ball.update();
+            this.checkBallBounce(ball);
+            if (this.checkCollision(ball.getRectangle(), this.paddle.getRectangle())) {
+                console.log("botsing met paddle");
+                ball.bounceX();
+                this.addPoint();
+            }
+        }
+        this.paddle.update();
         requestAnimationFrame(function () { return _this.gameLoop(); });
+    };
+    Game.prototype.checkBallBounce = function (ball) {
+        if (ball.x + ball.div.clientWidth > window.innerWidth) {
+            ball.bounceX();
+        }
+        else if (ball.y < 0) {
+            ball.bounceY();
+        }
+        else if (ball.y + ball.div.clientHeight > window.innerHeight) {
+            ball.bounceY();
+        }
+    };
+    Game.prototype.checkCollision = function (a, b) {
+        return (a.left <= b.right &&
+            b.left <= a.right &&
+            a.top <= a.bottom &&
+            b.top <= a.bottom);
+    };
+    Game.prototype.addPoint = function () {
+        var score = document.getElementsByTagName("score")[0];
+        this.score++;
+        score.innerHTML = "Score : " + this.score;
     };
     return Game;
 }());
